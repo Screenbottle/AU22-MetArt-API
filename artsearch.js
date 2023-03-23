@@ -23,8 +23,10 @@ const getDepartmentList = async () => {
         departmentIds.push(department.departmentId);
 
         departmentLink.addEventListener('click', () => {
+            loadingImages = true;
             mainElement.innerHTML = "";
             getDepartmentObjects(department);
+            loadingImages = false;
 
         });
         departmentNav.appendChild(departmentLink);
