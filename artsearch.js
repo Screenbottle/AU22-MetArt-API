@@ -25,6 +25,8 @@ const getDepartmentList = async () => {
         departmentLink.addEventListener('click', () => {
             loadingImages = true;
             mainElement.innerHTML = "";
+            pages = [];
+            currentPage = 0;
             getDepartmentObjects(department);
             loadingImages = false;
 
@@ -33,6 +35,68 @@ const getDepartmentList = async () => {
     });
 
 }
+
+const getGenres = async () => {
+    const url = 'https://quote-garden.onrender.com/api/v3/genres'
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const genres = data.data;
+    
+    const random = Math.floor(Math.random()*genres.length);
+    const genre = genres[random];
+
+    getQuote(genre);
+}
+
+const getQuote = async (genre) => {
+    const baseUrl = 'https://quote-garden.onrender.com/api/v3/quotes';
+    const url = `${baseUrl}?genre=${genre}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const allQuotes = data.data;
+
+    const random = Math.floor(Math.random()*allQuotes.length);
+    const quote = allQuotes[random];
+
+    const container = document.createElement('div');
+
+    const quoteElement = document.createElement('p');
+    quoteElement.innerHTML = quote.quoteText;
+
+    const quoteAuthor = document.createElement('h2');
+    quoteAuthor.innerHTML = quote.quoteAuthor;
+
+    const genreElement = document.createElement('h6');
+    genreElement.innerHTML = 'Genre: ' + genre;
+
+    container.appendChild(quoteAuthor);
+    container.appendChild(quoteElement);
+    container.appendChild(genreElement);
+    
+
+    mainElement.appendChild(container);
+
+    getGenreHighLights(genre);
+}
+
+const getGenreHighLights = async (genre) => {
+    const baseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/search?isHighlight=true';
+    const url = `${baseUrl}&q=${genre}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    
+
+    data.objectIDs.forEach(objectID => {
+        getObject(objectID);
+    })
+}
+
 
 const getHighlights = async () => {
     const url = 'https://collectionapi.metmuseum.org/public/collection/v1/search?isHighlight=true'
@@ -46,7 +110,6 @@ const getHighlights = async () => {
 const getDepartmentObjects = async (department) => {
     const baseUrl = 'https://collectionapi.metmuseum.org/public/collection/v1/objects';
     const url = `${baseUrl}?departmentIds=${department.departmentId}`;
-    console.log(url);
 
     const respone = await fetch(url);
     const data = await respone.json();
@@ -131,6 +194,8 @@ overlay.addEventListener('click', () => {
 })
 
 window.onload = getDepartmentList();
+window.onload = getGenres();
+
 
 window.addEventListener('scroll', () => {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -143,6 +208,8 @@ window.addEventListener('scroll', () => {
         }
     }
 })
+
+
 
 const nextPage = async () => {
     loadingImages = true;
